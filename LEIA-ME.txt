@@ -1,4 +1,4 @@
-TCESP Sales — v0.9.18-SA
+TCESP Sales — v0.9.19-SA
 
 Painel analítico de receitas e despesas municipais com base nos dados oficiais disponibilizados pelo Tribunal de Contas do Estado de São Paulo (TCESP).
 
@@ -32,4 +32,12 @@ PAGES
 https://transparencia-mendonca.github.io/TCE-SP-Sales/
 
 Baseline: sales-baseline-2026-09-20
-Build: 0918SA-20260920
+Build: 0919SA-20260920
+
+
+CORREÇÃO v0.9.19-SA
+- Detecta automaticamente IndexedDB vazio deixado por carga anterior interrompida.
+- Recarrega a baseline permanente quando a base local existe, mas está vazia.
+- Não volta para tela zerada se a gravação do objeto grande no IndexedDB falhar.
+- Mantém a baseline carregada em memória durante a sessão quando a persistência local falha.
+- Força revalidação do manifesto e dos arquivos anuais para evitar cache HTTP obsoleto.

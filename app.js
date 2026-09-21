@@ -255,7 +255,7 @@ function renderTravel(){
   const rankHtml=ranking.map((g,i)=>`<div class="rankrow"><span class="badge">${i+1}</span><button class="ranklink" data-person-key="${esc(g.id)}">${esc(g.name)}</button><span class="rankmeta">${g.displayCount} lançamento(s) • triagem ${confidenceBand(g.confidence).toLowerCase()}</span><b>${brl(g.displayTotal)}</b></div>`).join("")||"<p>Nenhum padrão eventual com confiança suficiente foi identificado nos filtros atuais.</p>";
   const detailHtml=grouped.map(({g,rank,rows})=>`<section class="person-card card" data-person-rank="${rank}"><div class="person-card-head"><div><strong><span class="person-rank">${rank}º</span> ${esc(g.name)}</strong><span>${rows.length} lançamento(s) • total selecionado ${brl(g.displayTotal)} • triagem ${confidenceBand(g.confidence).toLowerCase()}</span></div></div><div class="tablewrap"><table class="person-table"><thead><tr><th>Data</th><th>Empenho</th><th>Valor do lançamento</th><th>Classificação</th><th>Empenho / liquidação</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${esc(x.data||"—")}</td><td>${esc(x.empenho||"—")}</td><td class="num">${brl(x.valor)}</td><td>Pagamento pessoal eventual — natureza a confirmar</td><td>${commitmentLink(x.empenho,g.year,"Consultar no TCESP")}</td></tr>`).join("")}</tbody></table></div></section>`).join("");
 
-  $("#travelSec").innerHTML=`<div class="travel-hero card"><div class="travel-titleline"><h2>Pagamentos eventuais a pessoas físicas — triagem</h2><span class="version-badge version-card">v0.9.18-SA</span></div><p>Ranking do maior para o menor valor entre os lançamentos que permaneceram após uma triagem conservadora de recorrência e ambiguidade.</p></div>
+  $("#travelSec").innerHTML=`<div class="travel-hero card"><div class="travel-titleline"><h2>Pagamentos eventuais a pessoas físicas — triagem</h2><span class="version-badge version-card">v0.9.19-SA</span></div><p>Ranking do maior para o menor valor entre os lançamentos que permaneceram após uma triagem conservadora de recorrência e ambiguidade.</p></div>
   <div class="note card"><strong>Leitura correta.</strong> A base do TCESP não informa, com precisão suficiente, a natureza nominal destes pagamentos. Assim, um lançamento selecionado <strong>não deve ser chamado automaticamente de diária</strong>. Pode corresponder, por exemplo, a diária, ressarcimento ou reembolso, alimentação, combustível/deslocamento, adiantamento ou outra verba eventual. O painel publica apenas perfis de confiança alta e retém fora da exposição padrões recorrentes ou ambíguos. Por integridade da análise, a regra detalhada de pontuação não é apresentada na interface. A confirmação depende do Portal da Transparência de Sales e dos documentos do empenho/liquidação.</div>
   <section class="rank card travel-rank"><h3>Pagamentos pessoais eventuais — total em ordem decrescente</h3><p>Lista de triagem para conferência documental. Ela não define a natureza jurídica ou contábil do pagamento.</p><div class="rankgrid">${rankHtml}</div></section>
   <section class="travel-detail-list"><div class="card travel-list-intro"><h3>Lançamentos selecionados — agrupados por pessoa</h3><p>Os blocos seguem exatamente a ordem do ranking. Dentro de cada pessoa, os lançamentos são mostrados do mais antigo para o mais recente.</p></div>${detailHtml||'<div class="card"><p>Nenhum lançamento.</p></div>'}<div class="card detail-note">Cada pessoa possui tabela própria. O link abre a página oficial de despesas do TCESP no exercício selecionado. Para cotejar, filtre <strong>Evento = Valor Liquidado</strong> e pesquise o número do empenho. A natureza do pagamento deve ser confirmada no Portal da Transparência Municipal.</div></section>`;
@@ -331,7 +331,7 @@ function audit(){
     ["Receitas negativas",q.negativeRev.length,"Deduções/estornos preservados no total líquido."],
     ["Integridade dos estágios",integrityBad?`${integrityBad} a conferir`:"Sem quebra detectada",integrityBad?"Há empenhos que pedem cotejo entre empenho, liquidação e pagamento.":"Nenhum pagamento acima do liquidado, liquidação acima do empenho líquido ou pagamento sem empenho foi detectado no exercício carregado."]
   ];
-  $("#auditSec").innerHTML=`<section class="audit-hero card"><div><small>Sinais de auditoria • v0.9.18-SA</small><h2>Triagem automática do exercício ${y}</h2><p>Estes testes apontam padrões que merecem cotejo documental; <strong>não qualificam a despesa como irregular</strong>. Para reduzir falsos positivos, esta aba usa o exercício inteiro carregado e respeita apenas o filtro de órgão. Mês e pesquisa textual são ignorados.</p></div><span class="audit-scope">${esc(org)} • ${last?`até ${MONTHS[last]}/${y}`:"sem meses carregados"}${partial?" • exercício parcial":""}</span></section><div class="auditgrid audit-quality">${qualityCards.map((z,i)=>`<div class="audititem card ${i===7&&!integrityBad?'ok':'neutral'}"><small>${z[0]}</small><strong>${typeof z[1]==="number"?z[1].toLocaleString("pt-BR"):z[1]}</strong><small>${z[2]}</small></div>`).join("")}</div><section class="audit-section card"><div class="audit-section-head"><div><h3>Múltiplos empenhos de pequeno valor por credor</h3><p>Triagem de concentração anual de empenhos individualmente pequenos. O padrão pode decorrer de licitação, ata de registro de preços, parcelamento legítimo ou outras causas; a confirmação depende do processo administrativo. A regra detalhada de seleção não é exibida.</p></div><strong>${frag.length.toLocaleString("pt-BR")} credor(es)</strong></div><div class="audit-tablewrap"><table class="audit-table"><thead><tr><th>#</th><th>Credor</th><th>Empenhos selecionados</th><th>Soma</th><th>Maior empenho</th><th>Nº dos empenhos</th></tr></thead><tbody>${fragRows||'<tr><td colspan="6">Nenhum padrão selecionado neste exercício.</td></tr>'}</tbody></table></div></section><section class="audit-section card"><div class="audit-section-head"><div><h3>Pagamentos coincidentes</h3><p>Mesmo credor, mesmo valor e mesma data em empenhos distintos. Há hipóteses legítimas, inclusive divisão por fontes de recursos; por isso a tabela serve para cotejo com notas fiscais, medições e liquidações.</p></div><strong>${coinc.length.toLocaleString("pt-BR")} grupo(s)</strong></div><div class="audit-tablewrap"><table class="audit-table"><thead><tr><th>#</th><th>Data</th><th>Credor</th><th>Valor unitário</th><th>Ocorrências</th><th>Empenhos</th><th>Valor coincidente além da 1ª ocorrência</th></tr></thead><tbody>${coincRows||'<tr><td colspan="7">Nenhuma coincidência selecionada neste exercício.</td></tr>'}</tbody></table></div></section><section class="audit-section card"><h3>O que estes testes não enxergam</h3><p>O TCESP carregado no painel não fornece, de forma suficiente para estes testes, objeto detalhado, modalidade de contratação, contrato, nota fiscal, medição, ata de registro de preços ou justificativa do pagamento. Por isso, os sinais acima devem ser usados como ponto de partida para conferência documental.</p></section>`;
+  $("#auditSec").innerHTML=`<section class="audit-hero card"><div><small>Sinais de auditoria • v0.9.19-SA</small><h2>Triagem automática do exercício ${y}</h2><p>Estes testes apontam padrões que merecem cotejo documental; <strong>não qualificam a despesa como irregular</strong>. Para reduzir falsos positivos, esta aba usa o exercício inteiro carregado e respeita apenas o filtro de órgão. Mês e pesquisa textual são ignorados.</p></div><span class="audit-scope">${esc(org)} • ${last?`até ${MONTHS[last]}/${y}`:"sem meses carregados"}${partial?" • exercício parcial":""}</span></section><div class="auditgrid audit-quality">${qualityCards.map((z,i)=>`<div class="audititem card ${i===7&&!integrityBad?'ok':'neutral'}"><small>${z[0]}</small><strong>${typeof z[1]==="number"?z[1].toLocaleString("pt-BR"):z[1]}</strong><small>${z[2]}</small></div>`).join("")}</div><section class="audit-section card"><div class="audit-section-head"><div><h3>Múltiplos empenhos de pequeno valor por credor</h3><p>Triagem de concentração anual de empenhos individualmente pequenos. O padrão pode decorrer de licitação, ata de registro de preços, parcelamento legítimo ou outras causas; a confirmação depende do processo administrativo. A regra detalhada de seleção não é exibida.</p></div><strong>${frag.length.toLocaleString("pt-BR")} credor(es)</strong></div><div class="audit-tablewrap"><table class="audit-table"><thead><tr><th>#</th><th>Credor</th><th>Empenhos selecionados</th><th>Soma</th><th>Maior empenho</th><th>Nº dos empenhos</th></tr></thead><tbody>${fragRows||'<tr><td colspan="6">Nenhum padrão selecionado neste exercício.</td></tr>'}</tbody></table></div></section><section class="audit-section card"><div class="audit-section-head"><div><h3>Pagamentos coincidentes</h3><p>Mesmo credor, mesmo valor e mesma data em empenhos distintos. Há hipóteses legítimas, inclusive divisão por fontes de recursos; por isso a tabela serve para cotejo com notas fiscais, medições e liquidações.</p></div><strong>${coinc.length.toLocaleString("pt-BR")} grupo(s)</strong></div><div class="audit-tablewrap"><table class="audit-table"><thead><tr><th>#</th><th>Data</th><th>Credor</th><th>Valor unitário</th><th>Ocorrências</th><th>Empenhos</th><th>Valor coincidente além da 1ª ocorrência</th></tr></thead><tbody>${coincRows||'<tr><td colspan="7">Nenhuma coincidência selecionada neste exercício.</td></tr>'}</tbody></table></div></section><section class="audit-section card"><h3>O que estes testes não enxergam</h3><p>O TCESP carregado no painel não fornece, de forma suficiente para estes testes, objeto detalhado, modalidade de contratação, contrato, nota fiscal, medição, ata de registro de preços ou justificativa do pagamento. Por isso, os sinais acima devem ser usados como ponto de partida para conferência documental.</p></section>`;
   $("#auditSec").querySelectorAll("[data-dossier-key]").forEach(b=>b.addEventListener("click",()=>showPaymentDetails(b.dataset.dossierKey)));
 }
 function yearTotals(y){let d=db.despesas.filter(x=>x.ano==y&&orgMatch(x.orgao,$("#orgao").value)),r=db.receitas.filter(x=>x.ano==y),e=evSums(d);return {y,rec:r.reduce((a,x)=>a+n(x.valor),0),emp:n(e.Empenhado),net:net(e),liq:n(e["Valor Liquidado"]),paid:n(e["Valor Pago"]),dr:d.length,rr:r.length}}
@@ -343,7 +343,7 @@ function paidComposition(y){let d=db.despesas.filter(x=>x.ano==y),g=supplierGrou
 function compareYears(){let ys=[...new Set([...(db.exercicios||[]),...db.despesas.map(x=>+x.ano),...db.receitas.map(x=>+x.ano)])].filter(Boolean).sort((a,b)=>a-b),want=[...new Set([2020,2021,2022,2023,2024,2025,2026,...ys])].sort((a,b)=>a-b),raw=want.map(yearTotals),readyRaw=raw.filter(x=>x.dr||x.rr),ready=readyRaw.map(x=>{let f=compareReal&&x.y<=2025?ipcaFactorTo2025(x.y):1;return {...x,rec:x.rec*f,net:x.net*f,liq:x.liq*f,paid:x.paid*f}}),full=ready.filter(x=>{let ms=new Set(db.receitas.filter(r=>r.ano==x.y).map(r=>r.mesNum));return ms.size===12}),growth=full.map((x,i)=>({y:x.y,recG:i?((x.rec/full[i-1].rec)-1)*100:NaN,paidG:i?((x.paid/full[i-1].paid)-1)*100:NaN})),latestFull=[...full].reverse().find(x=>x.y<=2025),selectedY=+$("#ano").value,selectedReady=readyRaw.some(x=>x.y===selectedY&&(x.dr||x.rr)),compY=selectedReady?selectedY:(latestFull?.y||2025),revComp=revenueComposition(compY),paidComp=paidComposition(compY),mode=compareReal?"valores reais, corrigidos pelo IPCA para reais de dez/2025":"valores nominais";
 $("#compareSec").innerHTML=`<div class="explain-hero card"><h2>Comparar exercícios</h2><p>Comparação gráfica e numérica dos exercícios armazenados neste aparelho. Exercícios parciais aparecem no gráfico de valores, mas não entram no cálculo de crescimento anual.</p><div class="modeSwitch"><button id="nominalBtn" class="${compareReal?'':'active'}">Valores nominais</button><button id="realBtn" class="${compareReal?'active':''}">Corrigidos pelo IPCA</button></div><small class="ipcanote">Modo atual: ${mode}. IPCA anual oficial do IBGE; 2026 permanece nominal por ser exercício em curso.</small></div>${ready.length?`<div class="comparecharts"><section class="chartcard card"><h3>Receita × empenho líquido × pago</h3><p>Totais dos meses disponíveis em cada exercício — ${mode}.</p><div class="chartbox"><canvas id="annualBars"></canvas></div></section><section class="chartcard card"><h3>Crescimento ${compareReal?'real':'nominal'} anual</h3><p>Variação de receita e pagamentos entre exercícios completos consecutivos.</p><div class="chartbox"><canvas id="growthLines"></canvas></div></section></div><div class="comparecharts"><section class="chartcard card"><h3>Composição da receita — ${compY}</h3><p>Classificação analítica pelas descrições de fonte, alínea e subalínea da API do TCESP.</p><div class="chartbox"><canvas id="revPie"></canvas></div></section><section class="chartcard card"><h3>Composição da despesa paga — ${compY}</h3><p>8 maiores credores + demais. A API usada pelo painel não traz função orçamentária da despesa.</p><div class="chartbox"><canvas id="paidPie"></canvas></div></section></div>`:""}<div class="comparegrid">${ready.slice().reverse().map(x=>`<div class="card compareyear"><h3>${x.y}${x.y===2026?' <small>(parcial)</small>':''}</h3>${x.dr||x.rr?`<small>${x.dr.toLocaleString("pt-BR")} despesas • ${x.rr.toLocaleString("pt-BR")} receitas</small><p><b>Receita</b><span>${brl(x.rec)}</span></p><p><b>Empenho líquido</b><span>${brl(x.net)}</span></p><p><b>Liquidado</b><span>${brl(x.liq)}</span></p><p><b>Pago</b><span>${brl(x.paid)}</span></p>`:`<small>Dados ainda não carregados.</small>`}</div>`).join("")}</div>${ready.length>1?`<div class="note card">Os totais abrangem os meses existentes em cada exercício. Um exercício parcial não deve ser comparado diretamente com 12 meses de um exercício encerrado. A correção pelo IPCA usa as taxas anuais do IBGE e expressa os exercícios encerrados em poder de compra de dezembro de 2025.</div>`:""}`;
 $("#nominalBtn")?.addEventListener("click",()=>{compareReal=false;compareYears()});$("#realBtn")?.addEventListener("click",()=>{compareReal=true;compareYears()});if(ready.length)requestAnimationFrame(()=>{annualBars($("#annualBars"),ready);if(growth.length>1)growthLines($("#growthLines"),growth);if(revComp.length)pie($("#revPie"),revComp);if(paidComp.length)pie($("#paidPie"),paidComp)})}
-function render(){syncYears();let view=currentViewData();$("#clearQ").hidden=!$("#q").value;renderAnalysisScope(view);cards(view);renderFreshness();$("#painel").hidden=tab!=="painel";$("#tableSec").hidden=!["despesas","receitas","gastos"].includes(tab);$("#travelSec").hidden=tab!=="diarias";$("#auditSec").hidden=tab!=="auditoria";$("#compareSec").hidden=tab!=="comparar";$("#entendaSec").hidden=tab!=="entenda";let count=0;if(tab==="painel")renderPanel(view);else if(tab==="diarias")count=renderTravel();else if(tab==="auditoria")audit();else if(tab==="comparar")compareYears();else if(tab==="entenda"){}else count=renderTable();$("#status").textContent=(count?count.toLocaleString("pt-BR")+" linhas exibidas • ":"")+"base histórica permanente + atualizações locais/API • v0.9.18-SA"}
+function render(){syncYears();let view=currentViewData();$("#clearQ").hidden=!$("#q").value;renderAnalysisScope(view);cards(view);renderFreshness();$("#painel").hidden=tab!=="painel";$("#tableSec").hidden=!["despesas","receitas","gastos"].includes(tab);$("#travelSec").hidden=tab!=="diarias";$("#auditSec").hidden=tab!=="auditoria";$("#compareSec").hidden=tab!=="comparar";$("#entendaSec").hidden=tab!=="entenda";let count=0;if(tab==="painel")renderPanel(view);else if(tab==="diarias")count=renderTravel();else if(tab==="auditoria")audit();else if(tab==="comparar")compareYears();else if(tab==="entenda"){}else count=renderTable();$("#status").textContent=(count?count.toLocaleString("pt-BR")+" linhas exibidas • ":"")+"base histórica permanente + atualizações locais/API • v0.9.19-SA"}
 async function importData(raw,mesNum,anoOverride){let a=typeof raw==="string"?JSON.parse(raw.replace(/^```(?:json)?\s*/,"").replace(/\s*```$/,"").trim()):raw;if(!Array.isArray(a)||!a.length)throw Error("JSON sem registros");let isD="evento" in a[0],ano=anoOverride??+$("#ano").value;if(isD){db.despesas=db.despesas.filter(x=>!(x.ano===ano&&x.mesNum===mesNum));db.despesas.push(...a.map(x=>({ano,mesNum,mes:x.mes||MONTHS[mesNum],orgao:x.orgao||"",evento:x.evento||"",empenho:x.nr_empenho||"",fornecedorId:x.id_fornecedor||"",fornecedor:x.nm_fornecedor||"",data:x.dt_emissao_despesa||"",valor:+String(x.vl_despesa||0).replace(/\./g,"").replace(",",".")})))}else{db.receitas=db.receitas.filter(x=>!(x.ano===ano&&x.mesNum===mesNum));db.receitas.push(...a.map(x=>({ano,mesNum,mes:x.mes||MONTHS[mesNum],orgao:x.orgao||"",fonte:x.ds_fonte_recurso||"",aplicacao:x.ds_cd_aplicacao_fixo||"",alinea:x.ds_alinea||"",subalinea:x.ds_subalinea||"",valor:+String(x.vl_arrecadacao||0).replace(/\./g,"").replace(",",".")})))}await save();render()}
 function download(name,text,type="application/json"){let a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
 $("#backupBtn").onclick=()=>download(`tcesp-sales-backup-${new Date().toISOString().slice(0,10)}.json`,JSON.stringify(db));$("#restore").onchange=async e=>{let x=JSON.parse(await e.target.files[0].text());if(!x.despesas||!x.receitas)return alert("Backup inválido");db=x;await save();syncYears();render();alert("Backup restaurado.")};$("#resetBtn").onclick=async()=>{if(!confirm("Restaurar a base histórica permanente do repositório? As atualizações locais posteriores serão substituídas pela fotografia arquivada."))return;try{db=await loadPermanentBaseline(true);await save();syncYears();render();alert("Base histórica permanente restaurada.")}catch(e){alert("Não foi possível restaurar a base permanente: "+e.message)}};
@@ -363,7 +363,7 @@ async function loadPermanentBaseline(force=false){
   const cfg=window.TCESP_PERMANENT_BASELINE||{manifest:"baseline-manifest.json",version:"baseline"};
   const bust=encodeURIComponent(cfg.version||window.TCESP_BUILD_ID||"baseline");
   $("#status").textContent="Base histórica permanente: lendo manifesto…";
-  let mr=await fetch(`${cfg.manifest}?v=${bust}`,{cache:force?"reload":"default"});
+  let mr=await fetch(`${cfg.manifest}?v=${bust}`,{cache:"no-store"});
   if(!mr.ok)throw Error("manifesto permanente HTTP "+mr.status);
   let manifest=await mr.json();
   if(!Array.isArray(manifest.arquivos)||!manifest.arquivos.length)throw Error("manifesto permanente sem arquivos anuais");
@@ -371,7 +371,7 @@ async function loadPermanentBaseline(force=false){
   for(let i=0;i<manifest.arquivos.length;i++){
     let item=manifest.arquivos[i],file=item.arquivo||item.file;
     $("#status").textContent=`Base histórica permanente: ${item.ano} (${i+1}/${manifest.arquivos.length})…`;
-    let r=await fetch(`${file}?v=${bust}`,{cache:force?"reload":"default"});
+    let r=await fetch(`${file}?v=${bust}`,{cache:"no-store"});
     if(!r.ok)throw Error(`${file}: HTTP ${r.status}`);
     let pack=await r.json();
     if(!Array.isArray(pack.despesas)||!Array.isArray(pack.receitas))throw Error(`${file}: conteúdo inválido`);
@@ -395,30 +395,78 @@ if("serviceWorker"in navigator)navigator.serviceWorker.getRegistrations().then(r
 // Regra central: uma atualização de interface nunca substitui um IndexedDB já existente.
 // Os arquivos data-AAAA.json só são baixados automaticamente em navegador sem base local
 // ou quando o usuário escolhe explicitamente "Restaurar base".
-(async()=>{try{
-  db=await idbGet();
-  if(!db){
-    let old=localStorage.getItem("tcesp-sales-data")||localStorage.getItem("tcesp-data");
-    if(old){
-      db=JSON.parse(old);
-    }else{
-      db=await loadPermanentBaseline(false);
+function hasUsableData(x){
+  return !!(x&&typeof x==="object"&&
+    ((Array.isArray(x.despesas)&&x.despesas.length>0)||
+     (Array.isArray(x.receitas)&&x.receitas.length>0)))
+}
+(async()=>{
+  let initError=null;
+  try{
+    db=await idbGet();
+
+    // Recuperação automática: uma base local vazia, deixada por uma carga anterior
+    // interrompida, não pode bloquear a baseline permanente.
+    if(!hasUsableData(db)){
+      let old=null;
+      try{
+        let raw=localStorage.getItem("tcesp-sales-data")||localStorage.getItem("tcesp-data");
+        if(raw)old=JSON.parse(raw);
+      }catch(_){}
+      db=hasUsableData(old)?old:await loadPermanentBaseline(false);
+    }
+
+    if(!db||typeof db!=="object")db=structuredClone(window.SEED_DATA||{despesas:[],receitas:[],exercicios:[]});
+    if(!Array.isArray(db.despesas))db.despesas=[];
+    if(!Array.isArray(db.receitas))db.receitas=[];
+    if(!Array.isArray(db.exercicios))db.exercicios=[];
+    db.exercicios=[...new Set([...db.exercicios,...db.despesas.map(x=>+x.ano),...db.receitas.map(x=>+x.ano)])].filter(Boolean).sort((a,b)=>a-b);
+    if(!db.apiUpdates)db.apiUpdates={};
+    if(!db.autoCheck)db.autoCheck={};
+
+    // Se o navegador não aceitar a persistência do objeto grande, mantenha os dados
+    // carregados em memória nesta sessão em vez de voltar para uma base vazia.
+    try{
+      await save();
+      localStorage.removeItem("tcesp-sales-data");
+    }catch(e){
+      initError=e;
+      console.warn("Base carregada, mas não pôde ser persistida no IndexedDB",e);
+    }
+  }catch(e){
+    initError=e;
+    console.warn("Falha na inicialização da base permanente",e);
+
+    // Nunca descarte uma baseline já carregada em memória só porque a persistência falhou.
+    if(!hasUsableData(db)){
+      let persisted=await idbGet().catch(()=>null);
+      if(hasUsableData(persisted)){
+        db=persisted;
+      }else{
+        try{
+          db=await loadPermanentBaseline(true);
+        }catch(e2){
+          console.warn("Falha também na recarga forçada da baseline",e2);
+          db=structuredClone(window.SEED_DATA||{despesas:[],receitas:[],exercicios:[],apiUpdates:{},autoCheck:{}});
+        }
+      }
     }
   }
-  // Migração conservadora: preservar integralmente tudo o que já estiver no navegador.
-  // Nunca trocar o nome DBN nem incrementar a versão do IndexedDB sem uma migração explícita.
-  if(!db||typeof db!=="object")db=structuredClone(window.SEED_DATA||{despesas:[],receitas:[],exercicios:[]});
-  if(!Array.isArray(db.despesas))db.despesas=[];
-  if(!Array.isArray(db.receitas))db.receitas=[];
-  if(!Array.isArray(db.exercicios))db.exercicios=[];
-  db.exercicios=[...new Set([...db.exercicios,...db.despesas.map(x=>+x.ano),...db.receitas.map(x=>+x.ano)])].filter(Boolean).sort((a,b)=>a-b);
-  if(!db.apiUpdates)db.apiUpdates={};
-  if(!db.autoCheck)db.autoCheck={};
-  await save();
-  localStorage.removeItem("tcesp-sales-data");
-}catch(e){
-  console.warn("Falha na inicialização da base permanente",e);
-  db=await idbGet().catch(()=>null);
-  if(!db)db=structuredClone(window.SEED_DATA||{despesas:[],receitas:[],exercicios:[],apiUpdates:{},autoCheck:{}});
-}
-let ht=location.hash.slice(1);if(ht==="fornecedores")ht="gastos";if(["painel","despesas","receitas","gastos","diarias","auditoria","comparar","entenda"].includes(ht)){tab=ht;document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("active",x.dataset.tab===tab));} render();setTimeout(()=>autoCheckCurrentYear(),1200);addEventListener("resize",()=>tab==="painel"&&renderPanel())})();
+
+  let ht=location.hash.slice(1);if(ht==="fornecedores")ht="gastos";
+  if(["painel","despesas","receitas","gastos","diarias","auditoria","comparar","entenda"].includes(ht)){
+    tab=ht;
+    document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("active",x.dataset.tab===tab));
+  }
+
+  render();
+
+  if(initError&&hasUsableData(db)){
+    $("#status").textContent+=" • base carregada nesta sessão; persistência local não confirmada";
+  }else if(!hasUsableData(db)){
+    $("#status").textContent="A base permanente não foi carregada. Use Restaurar base ou recarregue a página.";
+  }
+
+  setTimeout(()=>autoCheckCurrentYear(),1200);
+  addEventListener("resize",()=>tab==="painel"&&renderPanel())
+})();
